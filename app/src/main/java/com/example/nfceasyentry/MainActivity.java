@@ -43,16 +43,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //NfcUtils nfcUtils = new NfcUtils(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //绑定组件
+
+        // 绑定组件
         Button writeButton = findViewById(R.id.write_button);
         editText = findViewById(R.id.edit_text);
-        //设置监听事件
+
+        // 设置监听事件
         writeButton.setOnClickListener(this);
 
-        // 初始化PendingIntent，当有NFC设备连接上的时候，就交给当前Activity处理
+        // 初始化 PendingIntent，当有 NFC 设备连接上时，就交给当前 Activity 处理
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this,
-                getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),  0/*PendingIntent.FLAG_CANCEL_CURRENT*/);
+        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass())
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 00/*PendingIntent.FLAG_CANCEL_CURRENT*/);
+        // 处理新的 Intent
         onNewIntent(getIntent());
     }
 
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         if (nfcAdapter != null) {
+            // 启用前台调度
             nfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
         }
     }
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() {
         super.onPause();
         if (nfcAdapter != null) {
+            // 禁用前台调度
             nfcAdapter.disableForegroundDispatch(this);
         }
     }
@@ -76,53 +81,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.d("nfceasyentry", intent.getAction());
-        //取出封装在intent中的TAG
+        // 取出封装在 Intent 中的 TAG
         tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
-        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction()))
-        {
+        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
             Toast.makeText(this, "NFC tag detected", Toast.LENGTH_SHORT).show();
+            // 获取 Ndef 对象
             Ndef ndef = Ndef.get(tag);
             for (String tech : tag.getTechList()) {
-                Log.i("nfceasyentry",new String(tech));;// 显示设备支持技术
+                Log.i("nfceasyentry", new String(tech)); // 显示设备支持技术
             }
             NdefMessage msg = null;
-            if (ndef !=null){
+            if (ndef != null) {
                 try {
                     msg = ndef.getCachedNdefMessage();
                     byte[] payload = msg.getRecords()[0].getPayload();
                     String encoding = ((payload[0] & 0x80) == 0) ? "utf-8" : "utf-16";
                     int languageCodeLength = payload[0] & 0x3f;
                     String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
-                    String text = new String(payload, languageCodeLength+1, payload.length - languageCodeLength - 1, encoding);
-                    if(text.isEmpty())
+                    String text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, encoding);
+                    if (text.isEmpty())
                         Toast.makeText(this, "Tag is empty!", Toast.LENGTH_SHORT).show();
                     editText.setText(text);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
             } else {
-                Log.i("nfceasyentry","No raw message detected");
+                Log.i("nfceasyentry", "No raw message detected");
                 editText.setText("");
                 Toast.makeText(this, "Tag is uninitialized!", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.write_button) {
-            Log.i("nfceasyentry","writeMsg");
-            if(tag==null)
-            {
+            Log.i("nfceasyentry", "writeMsg");
+            if (tag == null) {
                 Toast.makeText(this, "Tag not detected!", Toast.LENGTH_SHORT).show();
                 return;
             }
+            // 获取 Ndef 对象和 NdefFormatable 对象
             Ndef ndef = Ndef.get(tag);
             NdefFormatable ndefFormatable = NdefFormatable.get(tag);
+            // 创建 NdefRecord 对象
             NdefRecord ndefRecord = NdefRecord.createTextRecord(null, editText.getText().toString());
             NdefRecord[] records = {ndefRecord};
             NdefMessage ndefMessage = new NdefMessage(records);
@@ -131,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ndef.connect();
                     ndef.writeNdefMessage(ndefMessage);
                     ndef.close();
-                } else if(ndefFormatable != null) {
+                } else if (ndefFormatable != null) {
                     ndefFormatable.connect();
                     ndefFormatable.format(ndefMessage);
                 }
@@ -143,5 +147,3 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 }
-
-
