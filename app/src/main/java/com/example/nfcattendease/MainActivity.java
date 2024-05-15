@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction()))
         {
-            Toast.makeText(this, "检测到NFC标签", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "NFC tag detected", Toast.LENGTH_SHORT).show();
             Ndef ndef = Ndef.get(tag);
             for (String tech : tag.getTechList()) {
                 Log.i("nfcattendease",new String(tech));;// 显示设备支持技术
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
                     String text = new String(payload, languageCodeLength+1, payload.length - languageCodeLength - 1, encoding);
                     if(text.isEmpty())
-                        Toast.makeText(this, "标签为空！", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Tag is empty!", Toast.LENGTH_SHORT).show();
                     editText.setText(text);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 Log.i("nfcattendease","No raw message detected");
                 editText.setText("");
-                Toast.makeText(this, "标签未初始化！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Tag is uninitialized!", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.i("nfcattendease","writeMsg");
             if(tag==null)
             {
-                Toast.makeText(this, "未检测到标签！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Tag not detected!", Toast.LENGTH_SHORT).show();
                 return;
             }
             Ndef ndef = Ndef.get(tag);
@@ -135,15 +135,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ndefFormatable.connect();
                     ndefFormatable.format(ndefMessage);
                 }
-                Toast.makeText(this, "写入成功！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Write successful!", Toast.LENGTH_SHORT).show();
             } catch (IOException | FormatException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "写入失败！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Write failed!", Toast.LENGTH_SHORT).show();
             }
         }
     }
 }
-
-
 
 
