@@ -1,4 +1,4 @@
-package com.example.nfcattendease;
+package com.example.nfceasyentry;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.d("nfcattendease", intent.getAction());
+        Log.d("nfceasyentry", intent.getAction());
         //取出封装在intent中的TAG
         tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this, "NFC tag detected", Toast.LENGTH_SHORT).show();
             Ndef ndef = Ndef.get(tag);
             for (String tech : tag.getTechList()) {
-                Log.i("nfcattendease",new String(tech));;// 显示设备支持技术
+                Log.i("nfceasyentry",new String(tech));;// 显示设备支持技术
             }
             NdefMessage msg = null;
             if (ndef !=null){
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
             } else {
-                Log.i("nfcattendease","No raw message detected");
+                Log.i("nfceasyentry","No raw message detected");
                 editText.setText("");
                 Toast.makeText(this, "Tag is uninitialized!", Toast.LENGTH_SHORT).show();
             }
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.write_button) {
-            Log.i("nfcattendease","writeMsg");
+            Log.i("nfceasyentry","writeMsg");
             if(tag==null)
             {
                 Toast.makeText(this, "Tag not detected!", Toast.LENGTH_SHORT).show();
