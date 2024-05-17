@@ -1,149 +1,159 @@
 package com.example.nfceasyentry;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.nfc.FormatException;
+import android.nfc.tech.Ndef;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.nfc.tech.IsoDep;
-import android.nfc.tech.Ndef;
-import android.nfc.tech.NdefFormatable;
-import android.nfc.tech.NfcA;
-import android.nfc.tech.NfcF;
-import android.nfc.tech.NfcV;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
-    private NfcAdapter nfcAdapter;
-    private PendingIntent pendingIntent;
-    public static IntentFilter[] intentFiltersArray;
-    private String[][] techListsArray = new String[][]{new String[]{IsoDep.class.getName()},{ Ndef.class.getName() }, { NfcA.class.getName() },};
-    private Tag tag;
-    private EditText editText;
+    private LinearLayout layoutDoorInfo;
+    private TextView textDoorInfo;
+    private TextView textDoorData;
+    private TextView textDoorNotDetected;
+    private Button buttonOpenDoor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //NfcUtils nfcUtils = new NfcUtils(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 绑定组件
-        Button writeButton = findViewById(R.id.write_button);
-        editText = findViewById(R.id.edit_text);
+        // Initialize views
+        layoutDoorInfo = findViewById(R.id.layout_door_info);
+        textDoorInfo = findViewById(R.id.text_door_info);
+        textDoorData = findViewById(R.id.text_door_data);
+        textDoorNotDetected = findViewById(R.id.text_door_not_detected);
+        buttonOpenDoor = findViewById(R.id.button_open_door);
 
-        // 设置监听事件
-        writeButton.setOnClickListener(this);
+        // Set click listener for the open door button
+        buttonOpenDoor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Perform open door action
+                openDoor();
+            }
+        });
 
-        // 初始化 PendingIntent，当有 NFC 设备连接上时，就交给当前 Activity 处理
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass())
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 00/*PendingIntent.FLAG_CANCEL_CURRENT*/);
-        // 处理新的 Intent
-        onNewIntent(getIntent());
+        // Delayed display of simulated door open after 5 seconds
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Simulate NFC tag detection (replace this with actual NFC tag detection logic)
+                simulateNfcTagDetection();
+            }
+        }, 5000); // 5000 milliseconds = 5 seconds
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (nfcAdapter != null) {
-            // 启用前台调度
-            nfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
-        }
+        // Check for NFC tag detection
+        checkNfcTagDetection();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (nfcAdapter != null) {
-            // 禁用前台调度
-            nfcAdapter.disableForegroundDispatch(this);
-        }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        Log.d("nfceasyentry", intent.getAction());
-        // 取出封装在 Intent 中的 TAG
-        tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
+    private void checkNfcTagDetection() {
+        Intent intent = getIntent();
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
-            Toast.makeText(this, "NFC tag detected", Toast.LENGTH_SHORT).show();
-            // 获取 Ndef 对象
-            Ndef ndef = Ndef.get(tag);
-            for (String tech : tag.getTechList()) {
-                Log.i("nfceasyentry", new String(tech)); // 显示设备支持技术
-            }
-            NdefMessage msg = null;
-            if (ndef != null) {
-                try {
-                    msg = ndef.getCachedNdefMessage();
-                    byte[] payload = msg.getRecords()[0].getPayload();
-                    String encoding = ((payload[0] & 0x80) == 0) ? "utf-8" : "utf-16";
-                    int languageCodeLength = payload[0] & 0x3f;
-                    String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
-                    String text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, encoding);
-                    if (text.isEmpty())
-                        Toast.makeText(this, "Tag is empty!", Toast.LENGTH_SHORT).show();
-                    editText.setText(text);
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                Log.i("nfceasyentry", "No raw message detected");
-                editText.setText("");
-                Toast.makeText(this, "Tag is uninitialized!", Toast.LENGTH_SHORT).show();
-            }
+            // NFC tag detected, show door info
+            showDoorInfo(intent);
+        } else {
+            // NFC tag not detected, show message
+            textDoorNotDetected.setVisibility(View.VISIBLE);
+            layoutDoorInfo.setVisibility(View.GONE);
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.write_button) {
-            Log.i("nfceasyentry", "writeMsg");
-            if (tag == null) {
-                Toast.makeText(this, "Tag not detected!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // 获取 Ndef 对象和 NdefFormatable 对象
-            Ndef ndef = Ndef.get(tag);
-            NdefFormatable ndefFormatable = NdefFormatable.get(tag);
-            // 创建 NdefRecord 对象
-            NdefRecord ndefRecord = NdefRecord.createTextRecord(null, editText.getText().toString());
-            NdefRecord[] records = {ndefRecord};
-            NdefMessage ndefMessage = new NdefMessage(records);
-            try {
-                if (ndef != null) {
-                    ndef.connect();
-                    ndef.writeNdefMessage(ndefMessage);
-                    ndef.close();
-                } else if (ndefFormatable != null) {
-                    ndefFormatable.connect();
-                    ndefFormatable.format(ndefMessage);
+    private void showDoorInfo(Intent intent) {
+        // Hide the "Door not detected" message
+        textDoorNotDetected.setVisibility(View.GONE);
+        
+        // Extract tag from intent
+        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+        // Get Ndef object from the tag
+        Ndef ndef = Ndef.get(tag);
+
+        if (ndef != null) {
+            // Ndef is available, read Ndef message
+            NdefMessage ndefMessage = ndef.getCachedNdefMessage();
+            if (ndefMessage != null) {
+                // Ndef message found, extract data
+                NdefRecord[] records = ndefMessage.getRecords();
+                if (records != null && records.length > 0) {
+                    // Extract text from the first record
+                    String text = getTextFromNdefRecord(records[0]);
+                    // Display door data
+                    textDoorData.setText(text);
+                    layoutDoorInfo.setVisibility(View.VISIBLE);
                 }
-                Toast.makeText(this, "Write successful!", Toast.LENGTH_SHORT).show();
-            } catch (IOException | FormatException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Write failed!", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            // Ndef is not available, show error message
+            Toast.makeText(this, "NFC tag is not compatible", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private String getTextFromNdefRecord(NdefRecord record) {
+        try {
+            // Get payload bytes
+            byte[] payload = record.getPayload();
+            // Get encoding
+            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+            // Get language code length
+            int languageCodeLength = payload[0] & 0063;
+            // Get text
+            return new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
+        } catch (UnsupportedEncodingException e) {
+            Log.e("NFC", "Unsupported Encoding", e);
+        }
+        return null;
+    }
+
+    private void openDoor() {
+        // Implement door opening functionality here
+        // For demonstration purposes, just show a toast message
+        Toast.makeText(this, "Door opened", Toast.LENGTH_SHORT).show();
+    }
+
+    private void simulateNfcTagDetection() {
+        // Hide the "Door not detected" message
+        textDoorNotDetected.setVisibility(View.GONE);
+
+        // Simulate door data
+        String doorData = "Door: Dormitory3-1018\n" +
+                "Users:\n" +
+                " - Name: admin\n" +
+                "   Phone: 13812345678\n" +
+                "   Device: Redmi Note\n" +
+                " - Name: Yiliu\n" +
+                "   Phone: 13812345679\n" +
+                "   Device: Redmi Note\n" +
+                "Logs:\n" +
+                " - User: admin\n" +
+                "   Time: 2021-08-01 12:00:00\n" +
+                "   Status: Success\n" +
+                " - User: Yiliu\n" +
+                "   Time: 2021-08-01 12:00:00\n" +
+                "   Status: Success";
+
+        // Display door data
+        textDoorData.setText(doorData);
+        layoutDoorInfo.setVisibility(View.VISIBLE);
     }
 }

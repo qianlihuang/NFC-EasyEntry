@@ -7,24 +7,50 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/layout_door_info"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
         android:padding="16dp">
 
-        <EditText
-            android:id="@+id/edit_text"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/text_door_info"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Enter text to write to RFID tag" />
+            android:text="Door Info"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
 
+        <TextView
+            android:id="@+id/text_door_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Door Data"
+            android:textSize="16sp"/>
 
         <Button
-            android:id="@+id/write_button"
-            android:layout_width="match_parent"
+            android:id="@+id/button_open_door"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Write to RFID tag" />
+            android:text="Open Door"
+            android:layout_marginTop="16dp"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_door_not_detected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Door not detected"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_margin="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="visible"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
