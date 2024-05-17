@@ -24,10 +24,22 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity {
 
     private LinearLayout layoutDoorInfo;
+    private LinearLayout layoutLocalUserInfo;
+    private TextView textLocalUserInfo;
     private TextView textDoorInfo;
     private TextView textDoorData;
     private TextView textDoorNotDetected;
     private Button buttonOpenDoor;
+
+    // Mocked local user data
+    private static final String LOCAL_USER_DATA = "{\n" +
+            "  \"username\": \"admin\",\n" +
+            "  \"phone\": \"13812345678\",\n" +
+            "  \"device\": \"Redmi Note\",\n" +
+            "  \"password\": \"123456\",\n" +
+            "  \"permission\": \"Dormitory3-1018\",\n" +
+            "  \"time\": \"2021-08-01 12:00:00\"\n" +
+            "}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +48,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize views
         layoutDoorInfo = findViewById(R.id.layout_door_info);
+        layoutLocalUserInfo = findViewById(R.id.layout_local_user_info);
+        textLocalUserInfo = findViewById(R.id.text_local_user_info);
+        textDoorNotDetected = findViewById(R.id.text_door_not_detected);
         textDoorInfo = findViewById(R.id.text_door_info);
         textDoorData = findViewById(R.id.text_door_data);
-        textDoorNotDetected = findViewById(R.id.text_door_not_detected);
         buttonOpenDoor = findViewById(R.id.button_open_door);
 
         // Set click listener for the open door button
@@ -73,15 +87,15 @@ public class MainActivity extends AppCompatActivity {
             // NFC tag detected, show door info
             showDoorInfo(intent);
         } else {
-            // NFC tag not detected, show message
-            textDoorNotDetected.setVisibility(View.VISIBLE);
-            layoutDoorInfo.setVisibility(View.GONE);
+            // NFC tag not detected, show local user info
+            showLocalUserInfo();
         }
     }
 
     private void showDoorInfo(Intent intent) {
         // Hide the "Door not detected" message
-        textDoorNotDetected.setVisibility(View.GONE);
+        // Hide the local user info
+        layoutLocalUserInfo.setVisibility(View.GONE);
         
         // Extract tag from intent
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -133,7 +147,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void simulateNfcTagDetection() {
         // Hide the "Door not detected" message
-        textDoorNotDetected.setVisibility(View.GONE);
+        // Hide the local user info
+        layoutLocalUserInfo.setVisibility(View.GONE);
 
         // Simulate door data
         String doorData = "Door: Dormitory3-1018\n" +
@@ -155,5 +170,12 @@ public class MainActivity extends AppCompatActivity {
         // Display door data
         textDoorData.setText(doorData);
         layoutDoorInfo.setVisibility(View.VISIBLE);
+    }
+
+    private void showLocalUserInfo() {
+        // Display the "Door not detected" message
+        // Display local user info
+        textLocalUserInfo.setText(LOCAL_USER_DATA);
+        layoutLocalUserInfo.setVisibility(View.VISIBLE);
     }
 }
