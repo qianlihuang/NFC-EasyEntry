@@ -143,12 +143,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openDoor() {
-        // Implement door opening functionality here
-        // For demonstration purposes, just show a toast message
-        Toast.makeText(this, "Door opened", Toast.LENGTH_SHORT).show();
+        // Check if local user matches any valid user
+        if (isLocalUserValid()) {
+            Toast.makeText(this, "Door opened", Toast.LENGTH_SHORT).show();
         
-        // Write log entry
-        writeLogEntry("admin", getCurrentTime(), "Success");
+            // Write log entry
+            writeLogEntry("admin", getCurrentTime(), "Success");
+        } else {
+            // Local user does not match any valid user
+            // Display an error message
+            Toast.makeText(this, "Invalid user", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean isLocalUserValid() {
+        // Parse the local user data
+        try {
+            JSONObject localUserData = new JSONObject(LOCAL_USER_DATA);
+            String localUsername = localUserData.getString("username");
+            
+            // Check if the local user is valid
+            
+            
+            return true; // Return true if the local user is valid
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        
+        return false; // Return false if there is an error or the local user is invalid
     }
 
     private void writeLogEntry(String username, String time, String status) {
@@ -167,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Simulate door data
         String doorData = "Door: Dormitory3-1018\n" +
-                "Users:\n" +
+                "Valid Users:\n" +
                 " - Name: admin\n" +
                 "   Phone: 13812345678\n" +
                 "   Device: Redmi Note\n" +

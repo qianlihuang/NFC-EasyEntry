@@ -15,6 +15,7 @@
         android:visibility="gone"
         android:padding="16dp">
 
+        <!-- TextView to display door info -->
         <TextView
             android:id="@+id/text_door_info"
             android:layout_width="wrap_content"
@@ -24,6 +25,7 @@
             android:textStyle="bold"
             android:layout_marginBottom="16dp"/>
 
+        <!-- TextView to display door data -->
         <TextView
             android:id="@+id/text_door_data"
             android:layout_width="wrap_content"
@@ -31,6 +33,7 @@
             android:text="Door Data"
             android:textSize="16sp"/>
 
+        <!-- Button to open the door -->
         <Button
             android:id="@+id/button_open_door"
             android:layout_width="wrap_content"
@@ -49,6 +52,7 @@
         android:visibility="visible"
         android:padding="16dp">
 
+        <!-- TextView to display door not detected message -->
         <TextView
             android:id="@+id/text_door_not_detected"
             android:layout_width="wrap_content"
