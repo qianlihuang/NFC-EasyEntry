@@ -19,7 +19,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,8 +41,7 @@ public class MainActivity extends AppCompatActivity {
             "  \"phone\": \"13812345678\",\n" +
             "  \"device\": \"Redmi Note\",\n" +
             "  \"password\": \"123456\",\n" +
-            "  \"permission\": \"Dormitory3-1018\",\n" +
-            "  \"time\": \"2021-08-01 12:00:00\"\n" +
+            "  \"permission\": \"Dormitory3-1018\"\n" +
             "}";
 
     @Override
@@ -143,6 +146,18 @@ public class MainActivity extends AppCompatActivity {
         // Implement door opening functionality here
         // For demonstration purposes, just show a toast message
         Toast.makeText(this, "Door opened", Toast.LENGTH_SHORT).show();
+        
+        // Write log entry
+        writeLogEntry("admin", getCurrentTime(), "Success");
+    }
+
+    private void writeLogEntry(String username, String time, String status) {
+        // Implement code to write log entry to a log file or database
+        // For demonstration purposes, just print the log entry
+        String logEntry = "User: " + username + "\n" +
+                          "Time: " + time + "\n" +
+                          "Status: " + status;
+        Log.d("DoorLog", logEntry);
     }
 
     private void simulateNfcTagDetection() {
@@ -173,9 +188,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showLocalUserInfo() {
-        // Display the "Door not detected" message
-        // Display local user info
-        textLocalUserInfo.setText(LOCAL_USER_DATA);
-        layoutLocalUserInfo.setVisibility(View.VISIBLE);
+        try {
+            JSONObject userData = new JSONObject(LOCAL_USER_DATA);
+            String username = userData.getString("username");
+            String phone = userData.getString("phone");
+            String device = userData.getString("device");
+            String password = userData.getString("password");
+            String permission = userData.getString("permission");
+
+            String userInfo = "Username: " + username + "\n" +
+                    "Phone: " + phone + "\n" +
+                    "Device: " + device + "\n" +
+                    "Password: " + password + "\n" +
+                    "Permission: " + permission + "\n" +
+                    "Time: " + getCurrentTime();
+
+            // Display the "Door not detected" message
+            // Display local user info
+            textLocalUserInfo.setText(userInfo);
+            layoutLocalUserInfo.setVisibility(View.VISIBLE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getCurrentTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(new Date());
     }
 }
