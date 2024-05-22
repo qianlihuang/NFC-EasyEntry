@@ -163,9 +163,12 @@ public class MainActivity extends AppCompatActivity {
             String localUsername = localUserData.getString("username");
             
             // Check if the local user is valid
-            
-            
-            return true; // Return true if the local user is valid
+
+            // For demonstration purposes, the local user is considered valid if the username is "admin"
+            if (localUsername.equals("admin") || localUsername.equals("Yiliu")) {
+                return true; // Return true if the local user is valid
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
