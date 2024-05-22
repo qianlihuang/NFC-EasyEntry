@@ -25,6 +25,8 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.text.method.ScrollingMovementMethod;
+
 public class MainActivity extends AppCompatActivity {
 
     private LinearLayout layoutDoorInfo;
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         textDoorNotDetected = findViewById(R.id.text_door_not_detected);
         textDoorInfo = findViewById(R.id.text_door_info);
         textDoorData = findViewById(R.id.text_door_data);
+        textDoorData.setMovementMethod(new ScrollingMovementMethod());
         buttonOpenDoor = findViewById(R.id.button_open_door);
 
         // Set click listener for the open door button
@@ -148,11 +151,13 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Door opened", Toast.LENGTH_SHORT).show();
         
             // Write log entry
-            writeLogEntry("admin", getCurrentTime(), "Success");
+            writeLogEntry("Yiliu", getCurrentTime(), "Success");
         } else {
             // Local user does not match any valid user
             // Display an error message
             Toast.makeText(this, "Invalid user", Toast.LENGTH_SHORT).show();
+
+            writeLogEntry("Zhikai", getCurrentTime(), "Fail");
         }
     }
 
@@ -204,8 +209,29 @@ public class MainActivity extends AppCompatActivity {
                 "   Time: 2021-08-01 12:00:00\n" +
                 "   Status: Success\n" +
                 " - User: Yiliu\n" +
-                "   Time: 2021-08-01 12:00:00\n" +
-                "   Status: Success";
+                "   Time: 2021-08-02 12:00:00\n" +
+                "   Status: Success\n" +
+                " - User: Yiliu\n" +
+                "   Time: 2021-08-03 12:00:00\n" +
+                "   Status: Success\n" +
+                " - User: Yiliu\n" +
+                "   Time: 2021-08-04 12:00:00\n" +
+                "   Status: Success\n" +
+                " - User: Yiliu\n" +
+                "   Time: 2021-08-05 12:00:00\n" +
+                "   Status: Success\n" +
+                " - User: Yiliu\n" +
+                "   Time: 2021-08-06 12:00:00\n" +
+                "   Status: Success\n" +
+                " - User: Yiliu\n" +
+                "   Time: 2021-08-07 12:00:00\n" +
+                "   Status: Success\n" +
+                " - User: Yiliu\n" +
+                "   Time: 2021-08-08 12:00:00\n" +
+                "   Status: Success\n" +
+                " - User: Zhikai\n" +
+                "   Time: 2021-08-09 12:00:00\n" +
+                "   Status: Fail\n";   
 
         // Display door data
         textDoorData.setText(doorData);
