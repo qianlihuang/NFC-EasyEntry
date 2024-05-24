@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         // Hide the local user info
         layoutLocalUserInfo.setVisibility(View.GONE);
 
-        // Simulate door data
+        // Mocked door data
         String doorData = "Door: Dormitory3-1018\n" +
                 "Valid Users:\n" +
                 " - Name: admin\n" +

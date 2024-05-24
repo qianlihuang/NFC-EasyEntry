@@ -43,6 +43,7 @@
                     android:id="@+id/text_door_data"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxHeight="400dp"
                     android:text="Door Data"
                     android:textSize="16sp"
                     android:layout_marginTop="8dp"
