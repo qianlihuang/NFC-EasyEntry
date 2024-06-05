@@ -109,4 +109,39 @@
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
+    <!-- New Debugger Layout -->
+    <LinearLayout
+        android:id="@+id/layout_debugger"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="visible">
+        
+        <EditText
+            android:id="@+id/editText_debugger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter text for NFC tag"
+            android:scrollHorizontally="true"
+            android:overScrollMode="always"
+            android:background="@android:color/transparent"
+            android:gravity="top"
+            android:maxLines="1"
+            android:inputType="text"
+        />
+
+        <Button
+            android:id="@+id/button_write_nfc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Write NFC"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
