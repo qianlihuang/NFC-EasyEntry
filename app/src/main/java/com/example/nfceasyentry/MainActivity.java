@@ -221,19 +221,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openDoor() {
+        String currentTime = getCurrentTime();
+        String logEntry;
+    
         // Check if local user matches any valid user
         if (isLocalUserValid()) {
             Toast.makeText(this, "Door opened", Toast.LENGTH_SHORT).show();
-
-            // Write log entry
-            writeLogEntry("Yiliu", getCurrentTime(), "Success");
+            // Create log entry
+            logEntry = "\nUser: Yiliu\nTime: " + currentTime + "\nStatus: Success\n";
         } else {
             // Local user does not match any valid user
             // Display an error message
             Toast.makeText(this, "Invalid user", Toast.LENGTH_SHORT).show();
-
-            writeLogEntry("Zhikai", getCurrentTime(), "Fail");
+            logEntry = "\nUser: Zhikai\nTime: " + currentTime + "\nStatus: Fail\n";
         }
+    
+        try {
+            appendLogToNfcTag(logEntry);
+        } catch (IOException | FormatException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error writing to NFC tag", Toast.LENGTH_SHORT).show();
+        }
+    
+        // Update door data with new log entry
+        textDoorData.append(logEntry);
     }
 
     private boolean isLocalUserValid() {
@@ -256,13 +267,34 @@ public class MainActivity extends AppCompatActivity {
         return false; // Return false if there is an error or the local user is invalid
     }
 
-    private void writeLogEntry(String username, String time, String status) {
-        // Implement code to write log entry to a log file or database
-        // For demonstration purposes, just print the log entry
-        String logEntry = "User: " + username + "\n" +
-                          "Time: " + time + "\n" +
-                          "Status: " + status;
-        Log.d("DoorLog", logEntry);
+    private void appendLogToNfcTag(String logEntry) throws IOException, FormatException {
+        if (nfcTag != null) {
+            Ndef ndef = Ndef.get(nfcTag);
+            if (ndef != null) {
+                ndef.connect();
+                NdefMessage ndefMessage = ndef.getNdefMessage();
+                String existingData = "";
+    
+                if (ndefMessage != null) {
+                    NdefRecord[] records = ndefMessage.getRecords();
+                    if (records != null && records.length > 0) {
+                        existingData = getTextFromNdefRecord(records[0]);
+                    }
+                }
+    
+                String updatedData = existingData + logEntry;
+                NdefRecord ndefRecord = NdefRecord.createTextRecord("en", updatedData);
+                NdefMessage newNdefMessage = new NdefMessage(new NdefRecord[]{ndefRecord});
+    
+                ndef.writeNdefMessage(newNdefMessage);
+                ndef.close();
+                Toast.makeText(this, "Log entry appended to NFC tag", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "NFC tag is not NDEF compatible", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "No NFC tag detected", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // private void simulateNfcTagDetection() {
