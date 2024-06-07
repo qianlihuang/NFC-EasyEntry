@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private String[][] techListsArray = new String[][]{new String[]{Ndef.class.getName(), NdefFormatable.class.getName()}};
     private Tag nfcTag;
 
+    private boolean isNfcTagDetected = false;
+
     // Mocked local user data
     private static final String LOCAL_USER_DATA = "{\n" +
             "  \"username\": \"admin\",\n" +
@@ -120,6 +122,9 @@ public class MainActivity extends AppCompatActivity {
         if (nfcAdapter != null) {
             nfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
         }
+        if (!isNfcTagDetected) {
+            hideDoorInfo();
+        }
         checkNfcTagDetection(getIntent());
     }
 
@@ -129,32 +134,42 @@ public class MainActivity extends AppCompatActivity {
         if (nfcAdapter != null) {
             nfcAdapter.disableForegroundDispatch(this);
         }
+        isNfcTagDetected = false;
+        hideDoorInfo();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
         checkNfcTagDetection(intent);
     }
 
     private void checkNfcTagDetection(Intent intent) {
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
+            isNfcTagDetected = true;
+            Log.d("NFC", "NFC tag detected");
             showDoorInfo(intent);
         } else {
-            showLocalUserInfo();
+            isNfcTagDetected = false;
+            Log.d("NFC", "NFC tag not detected");
+            hideDoorInfo();
         }
+
+        Log.d("NFC", "NFC tag detection state: " + isNfcTagDetected);
     }
 
     private void showDoorInfo(Intent intent) {
         layoutLocalUserInfo.setVisibility(View.GONE);
-
+        layoutDebugger.setVisibility(View.GONE);
+    
         // Extract tag from intent
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         nfcTag = tag;
-
+    
         // Get Ndef object from the tag
         Ndef ndef = Ndef.get(tag);
-
+    
         if (ndef != null) {
             // Ndef is available, read Ndef message
             try {
@@ -182,6 +197,11 @@ public class MainActivity extends AppCompatActivity {
             // Ndef is not available, show error message
             Toast.makeText(this, "NFC tag is not compatible", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void hideDoorInfo() {
+        layoutDoorInfo.setVisibility(View.GONE);
+        showLocalUserInfo(); // Switch back to local user info
     }
 
     private String getTextFromNdefRecord(NdefRecord record) {
